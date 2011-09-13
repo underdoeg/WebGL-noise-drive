@@ -12,6 +12,8 @@ var trabbiLoaded = false;
 
 var debug;
 
+var nScale = 180;
+
 $(document).ready(function(){
     init();
 })
@@ -40,10 +42,10 @@ function init(){
 
     camera = new THREE.Camera(80, window.innerWidth/window.innerHeight, 1, 10000);
     
-    camera.position.x = -20;
+    camera.position.x = -200;
     camera.position.z = 0;
-    camera.position.y = 702;
-    camera.target.position.y = 650;
+    camera.position.y = 102;
+    camera.target.position.y = 150;
     
     noise = new SimplexNoise();
     
@@ -99,14 +101,16 @@ function update(){
         pos.x -= colX.x*.01;
         pos.y -= colX.z*.01;
         
-        debug.html(pos.y);
         posDirty = true;
     }
     
-    //debug.html(trabbi.matrix.getColumnX().x+"");
-    
+    var carY = noise.noise(pos.x, pos.y)*nScale;
+    trabbi.position.y =  carY;
+        
     trabbi.updateMatrix();
     
+    
+    camera.target.position = trabbi.position;
     
     debug.html();
     

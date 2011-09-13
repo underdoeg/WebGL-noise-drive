@@ -14,22 +14,19 @@ function Ground(){
         this.geometry = new THREE.PlaneGeometry( 3000, 3000, this.segsX - 1, this.segsY - 1 );
         this.geometry.dynamic = true;
         
-        var i, j, il, jl;
-    
-        for ( i = 0, il = this.geometry.vertices.length; i < il; i ++ ) {
-            //this.geometry.vertices[ i ].position.z = 35 * Math.sin( i/2 );
-        }
-        
         this.material = new THREE.MeshBasicMaterial( { color:0x666666, opacity:1, wireframe: true } );
         this.mesh = new THREE.Mesh( this.geometry, this.material );
         this.mesh.rotation.x = - 90 * Math.PI / 180;
     }
     
     this.update = function(posX, posY){
+        var sXH = this.segsX*.5;
+        var sYH = this.segsY*.5;;
         for(var y=0; y<this.segsY; y++){
             for(x = 0; x<this.segsX; x++){
                 var i = y*this.segsX+x;
-                this.geometry.vertices[i].position.z = noise.noise(x*.03+posX, y*.03+posY)*100;
+                this.geometry.vertices[i].position.z = noise.noise((x-sXH)*.03+posX, (y-sYH)*.03+posY)*nScale;
+                
             }
         }
         
