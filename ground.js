@@ -5,8 +5,8 @@ function Ground(){
     
     this.init = function(){
         
-        this.segsX = 100;
-        this.segsY = 100;
+        this.segsX = 150;
+        this.segsY = 150;
         
         this.offX = 0;
         this.offY = 0;
@@ -17,6 +17,9 @@ function Ground(){
         this.material = new THREE.MeshBasicMaterial( { color:0x666666, opacity:1, wireframe: true } );
         this.mesh = new THREE.Mesh( this.geometry, this.material );
         this.mesh.rotation.x = - 90 * Math.PI / 180;
+        
+        this.segW = 3000 / this.segsX;
+        this.segH = 3000 / this.segsY;
     }
     
     this.update = function(posX, posY){
@@ -25,8 +28,7 @@ function Ground(){
         for(var y=0; y<this.segsY; y++){
             for(x = 0; x<this.segsX; x++){
                 var i = y*this.segsX+x;
-                this.geometry.vertices[i].position.z = noise.noise((x-sXH)*.03+posX, (y-sYH)*.03+posY)*nScale;
-                
+                this.geometry.vertices[i].position.z = heightAt((x-sXH)*this.segW+posX, (y-sYH)*this.segH+posY);
             }
         }
         
