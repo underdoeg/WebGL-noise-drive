@@ -2,7 +2,7 @@ var camera, scene, renderer, container, containerDiv, ground, mesh, material;
 
 var width, height;
 
-var ground, car, trabbiBounds, trabbiWidth, trabbiLength;
+var ground, car, trabbiBounds, trabbiWidth, trabbiLength, carObj;
 var pos, posDirty;
 
 var noise  = new SimplexNoise();
@@ -41,13 +41,16 @@ function init(){
     containerDiv.appendChild( renderer.domElement );
 
     scene = new THREE.Scene();
-
+    
     camera = new THREE.Camera(80, window.innerWidth/window.innerHeight, 1, 10000);
     
     camera.position.x = -200;
     camera.position.z = 0;
     camera.position.y = 102;
     camera.target.position.y = 150;
+    
+    carObj = new THREE.Object3D();
+    scene.addObject(carObj);
     
     ground = new Ground();
     ground.init();
@@ -79,7 +82,7 @@ function createTrabbi(geometry){
     var material = new THREE.MeshFaceMaterial();
     trabbi = new THREE.Mesh( geometry, material );
     //mesh.scale.set(50, 50, 50);
-    scene.addObject( trabbi );
+    carObj.addChild( trabbi );
     trabbiLoaded = true;
     geometry.computeBoundingBox();
     trabbiBounds = geometry.boundingBox;
@@ -92,15 +95,16 @@ function update(){
     requestAnimationFrame( update);
     
     if(lDown == true){
-        trabbi.rotation.y += .1;
+        carObj.rotation.y += .1;
         posDirty = true;
     }
     if(rDown == true){
-        trabbi.rotation.y -= .1; 
+        carObj.rotation.y -= .1; 
         posDirty = true;
     }
+    carObj.updateMatrix();
     
-    var trabbiDir = trabbi.matrix.getColumnX();
+    var trabbiDir = carObj.matrix.getColumnX();
     trabbiDir = trabbiDir.normalize();
     
     if(upDown == true){
@@ -115,7 +119,7 @@ function update(){
     else
         trabbi.position.y *= .81;
     */
-    trabbi.position.y = carY;
+    carObj.position.y = carY;
     
     //calculate z rotation of trabbi
     {
@@ -125,27 +129,29 @@ function update(){
         
         var t2 = new THREE.Vector3(pos.x, 0, pos.y);
         t2.subSelf(trabbiDir);
-        dLength = heightAt(t1.x, t1.z)-heightAt(t2.x, t2.z);
+        var dLength = heightAt(t1.x, t1.z)-heightAt(t2.x, t2.z);
+        
         trabbi.rotation.z = Math.atan(dLength/trabbiLength);
     }
     
-   
+    trabbi.updateMatrix();
+    
+    
     //calculate x rotation of trabbi
     {
         var trabbiDirPerp = trabbiDir.normalize().clone();
-        trabbiDirPerp.set(trabbiDirPerp.z, 0, trabbiDirPerp.x);
+        trabbiDirPerp.set(trabbiDirPerp.z, 0, -trabbiDirPerp.x);
         trabbiDirPerp.multiplyScalar(trabbiWidth*.5);
         var t1 = new THREE.Vector3(pos.x, 0, pos.y);
         t1 = t1.addSelf(trabbiDirPerp);
         
         var t2 = new THREE.Vector3(pos.x, 0, pos.y);
         t2 = t2.subSelf(trabbiDirPerp);
-        dLength = heightAt(t1.x, t1.z)-heightAt(t2.x, t2.z);
+        var dLength = heightAt(t2.x, t2.z)-heightAt(t1.x, t1.z);
         trabbi.rotation.x = -Math.atan(dLength/trabbiWidth);
-        debug.html(Math.round(t1.x)+" / "+Math.round(t2.x));
+        debug.html(trabbi.rotation.x);
+        //debug.html(Math.round(t1.y)+" / "+Math.round(t2.y));
     }
-   
-    
     
     trabbi.updateMatrix();
     
